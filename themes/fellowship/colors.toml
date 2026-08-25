@@ -1,0 +1,44 @@
+# Fellowship — Middle-earth at golden hour, drawn from Fellowship.png.
+#
+# The ground is the near-black green of the tree silhouettes in the left
+# foreground; the text is the lamplit parchment of the sky. Accents are the
+# gold of Rivendell's stonework, the amber of autumn beeches, the mauve of
+# the Misty Mountains at dusk, and the verdigris of the falls.
+
+mode = "dark"
+
+accent    = "#D6AC5C"   # Rivendell gold — lamplight on white stone
+selection = "#3C463A"   # moss on a shaded stone
+muted     = "#7A8272"   # lichen
+
+background        = "#1C2321"   # Mirkwood shadow (foreground trees)
+dark_background   = "#161B1A"   # deeper wood
+darker_background = "#101414"   # under the roots
+lighter_background = "#2A322D"  # where the light just reaches
+
+foreground        = "#E7D6B6"   # parchment, lamplit
+dark_foreground   = "#8E8A72"   # old vellum in shade
+light_foreground  = "#F2E4C6"
+bright_foreground = "#FBF2DD"   # sun on the peak of Caradhras
+
+# Gold leaf bleeding into mithril — the border of a focused window
+hyprland_active_border   = "rgba(D6AC5Cee) rgba(E7D6B6ee) 45deg"
+hyprland_inactive_border = "rgba(2A322Daa)"
+active_border_color      = "#D6AC5C"
+active_tab_background    = "#3C463A"
+
+red     = "#B45641"   # maple ember
+yellow  = "#D6AC5C"   # gold
+orange  = "#C4823C"   # autumn beech
+green   = "#7E9663"   # Shire meadow
+cyan    = "#7FA9A0"   # verdigris on the falls
+blue    = "#6E8DA6"   # the Misty Mountains
+magenta = "#B08A97"   # dawn on the far peaks
+brown   = "#6B4B2F"   # Hobbiton oak
+
+bright_red     = "#D0764F"
+bright_yellow  = "#EFCE86"
+bright_green   = "#9DB47C"
+bright_cyan    = "#9CC7BC"
+bright_blue    = "#8FAAC2"
+bright_magenta = "#C9A7B0"

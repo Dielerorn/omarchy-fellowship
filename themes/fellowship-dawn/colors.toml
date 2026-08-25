@@ -1,0 +1,42 @@
+# Fellowship Dawn — the light half of the Fellowship theme.
+#
+# The ground is the vellum of the Gandalf poster; the ink is oak-gall brown
+# from the robe and staff. The accents are the same Middle-earth colours as
+# the dark variant, darkened to hold their own against parchment.
+
+mode = "light"
+
+accent    = "#9E6F22"   # gilt on vellum
+selection = "#DCC69B"   # a warmer wash of the page
+muted     = "#8A7A5C"   # faded ink
+
+background        = "#EFDDBB"   # vellum
+dark_background   = "#E4CFA8"   # the page in shadow
+darker_background = "#D7BF93"   # the gilded band along the foot
+lighter_background = "#F7ECD3"  # where the light falls
+
+foreground        = "#33291B"   # oak-gall ink
+dark_foreground   = "#7D6C50"   # a lighter hand
+light_foreground  = "#4A3D28"
+bright_foreground = "#211A10"   # the darkest stroke of the pen
+
+hyprland_active_border   = "rgba(9E6F22ee) rgba(6B4B2Fee) 45deg"
+hyprland_inactive_border = "rgba(D7BF9399)"
+active_border_color      = "#9E6F22"
+active_tab_background    = "#DCC69B"
+
+red     = "#8E3D2B"   # maple ember
+yellow  = "#9E6F22"   # gilt
+orange  = "#A8632A"   # autumn beech
+green   = "#556B3F"   # hedgerow
+cyan    = "#3F7168"   # verdigris
+blue    = "#3E5C77"   # the Misty Mountains
+magenta = "#7C4B5C"   # dawn on the far peaks
+brown   = "#6B4B2F"   # Hobbiton oak
+
+bright_red     = "#A9503A"
+bright_yellow  = "#B8853A"
+bright_green   = "#6A8150"
+bright_cyan    = "#548A7F"
+bright_blue    = "#52738E"
+bright_magenta = "#956073"
