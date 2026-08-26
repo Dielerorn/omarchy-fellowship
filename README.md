@@ -232,6 +232,17 @@ Needs ImageMagick, Python with Pillow, `ttf-tengwar-annatar`, `noto-fonts`,
 and the five source illustrations in `~/Pictures/Wallpapers/LOTR/` (override
 with `SRC_DIR=`, or `./install.sh --with-wallpapers` to put them there).
 
+`omarchy theme set` copies the theme to
+`~/.local/state/omarchy/current/theme`, and the wallpaper, `omarchy theme bg
+next` and the background switcher all read that snapshot rather than the theme
+directory. A rebuild therefore shows up only once the theme is applied again —
+`forge.sh` does that for you when one of these two is current, and restores
+the wallpaper you had. By hand:
+
+```bash
+omarchy theme set fellowship && omarchy theme bg cache
+```
+
 Editing the plates, their inscriptions or their band tone is one table near
 the bottom of `forge.sh`:
 

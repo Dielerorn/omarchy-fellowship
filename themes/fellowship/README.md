@@ -289,3 +289,21 @@ The numbering under `backgrounds/` is the running order `omarchy theme bg
 next` walks, so `install_set` clears the directory before it writes: a
 renumbered plate left behind under its old name would be cycled through
 twice.
+
+### Why a rebuild needs the theme re-applied
+
+`omarchy theme set` does not read this directory at paint time. It copies the
+whole theme to `~/.local/state/omarchy/current/theme` and *everything*
+downstream reads that snapshot — the wallpaper, `omarchy theme bg next`, and
+the background switcher with its thumbnail cache.
+
+So rebuilding the artwork changes nothing on screen, and new plates do not
+appear in the switcher, until the theme is applied again. `forge.sh` does that
+for you when one of these two themes is current, putting the wallpaper you had
+back afterwards (applying otherwise resets it) and refreshing the thumbnails.
+By hand it is:
+
+```bash
+omarchy theme set fellowship
+omarchy theme bg cache
+```

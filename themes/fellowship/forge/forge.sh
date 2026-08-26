@@ -235,5 +235,24 @@ python3 "$HERE/unlock.py"  "$DARK/colors.toml"  "$DARK/unlock.png" \
 python3 "$HERE/unlock.py"  "$LIGHT/colors.toml" "$LIGHT/unlock.png" \
         "$LIGHT/backgrounds/01-gandalf.jpg"   "$LIGHT/preview-unlock.png"
 
+# `omarchy theme set` does not read the theme directory at paint time -- it
+# copies it to ~/.local/state/omarchy/current/theme and everything downstream
+# (the wallpaper, the background switcher and its thumbnails) reads that
+# snapshot. Rebuilding the artwork here therefore changes nothing on screen
+# until the theme is applied again, so if one of these two is current, do it.
+current="$(cat "$HOME/.local/state/omarchy/current/theme.name" 2>/dev/null || true)"
+if [[ $current == fellowship || $current == fellowship-dawn ]]; then
+  echo "==> re-applying $current (the live copy is a snapshot, not a link)"
+  # Applying resets the wallpaper, so put the same plate back afterwards.
+  was="$(basename "$(readlink -f "$HOME/.local/state/omarchy/current/background" 2>/dev/null || true)")"
+  omarchy theme set "$current" >/dev/null 2>&1 || echo "    could not re-apply; run: omarchy theme set $current" >&2
+  if [[ -n $was && -f $HOME/.local/state/omarchy/current/theme/backgrounds/$was ]]; then
+    omarchy theme bg set "$HOME/.local/state/omarchy/current/theme/backgrounds/$was" >/dev/null 2>&1 || true
+  fi
+  omarchy theme bg cache >/dev/null 2>&1 || true
+else
+  echo "==> apply a theme to see the new plates:  omarchy theme set fellowship"
+fi
+
 echo "==> done"
 du -sh "$DARK" "$LIGHT"
