@@ -20,6 +20,11 @@ line and its gloss.
 
 ![The six plates](docs/plates.png)
 
+The pointer is the Warcraft gauntlet, converted from the original Windows
+cursors and wired to follow the theme:
+
+![The cursors](docs/cursors.png)
+
 ---
 
 ## Install
@@ -77,10 +82,17 @@ themes/fellowship/        the dark theme  — colours, 12 backgrounds, lock plat
                           previews, hyprland.lua, and forge/ (the build pipeline)
 themes/fellowship-dawn/   the light theme — the same twelve, reordered
 bar/tengwar.qml           the bar module (generated; see forge/barwidget.py)
+cursors/Fellowship-WoW/   the built XCursor theme
+cursors/src/              the Windows .ani cursors it was built from
 wallpapers/               the five source illustrations, 1536x1024
 plugins/                  optional: the Moria lock screen and the quiet screensaver
-bin/                      the screensaver launchers and the shell.json wiring helpers
+bin/                      the screensaver launchers, the cursor hook, and the
+                          shell.json wiring helpers
 ```
+
+> **This repository is private.** The wallpapers are original, but the cursors
+> are Blizzard's World of Warcraft artwork. Keep it that way before sharing the
+> link, or drop `cursors/` and publish the rest.
 
 ---
 
@@ -122,6 +134,55 @@ Every poster carries a printed tengwar band whose script does not repeat
 cleanly, so it cannot be tiled wider. Each plate gets a fresh band instead,
 set in Tengwar Annatar, sized to cover the printed one exactly, and cut in
 parchment or in umber depending on how dark the picture is.
+
+---
+
+## The cursors
+
+The Warcraft gauntlet, and seven more roles from the same pack:
+
+| X name | what it is |
+|---|---|
+| `default` | the silver gauntlet |
+| `pointer` | the gauntlet, glowing blue — links and buttons |
+| `wait` / `progress` | the gold and iron cogs |
+| `help` | the orb |
+| `not-allowed` | the gauntlet, greyed |
+| `pencil` | the sword |
+| `all-scroll` / `move` | the gryphon — a liberty, but you see this one dragging windows |
+
+The pack has **no I-beam, no resize cursors, no crosshair**, and those are
+cursors you meet constantly. The theme therefore declares `Inherits=Yaru` and
+the missing roles come from Yaru, so text fields and window edges keep working
+and simply do not look like Warcraft. Six more cursors — loot, mail, skinning,
+and three character portraits — ship under `wow-*` names, bound to nothing.
+
+### How it follows the theme
+
+Omarchy's theme format has no cursor slot; it sets only `XCURSOR_SIZE`. So each
+theme here carries a one-line `cursors.theme` file, in the same spirit as the
+stock `icons.theme`, and `bin/fellowship-cursor` reads it. The installer
+registers that script as **both** a `theme-set` and a `post-boot` hook, so the
+cursor follows a theme switch immediately and survives a reboot without
+anything being written into `hyprland.lua`.
+
+Switch to a theme that names no cursor and you get the system default back.
+Any Omarchy theme can opt in by dropping a `cursors.theme` in beside its
+`icons.theme`.
+
+### Rebuilding them
+
+```bash
+python3 themes/fellowship/forge/cursors.py cursors/src ~/.local/share/icons/Fellowship-WoW \
+        --name Fellowship-WoW --inherits Yaru
+```
+
+`cursors.py` reads Windows `.ani`/`.cur` and writes XCursor directly — no
+`win2xcur` or `xcursorgen` needed, just Pillow, which the forge already uses.
+Two details it gets right that are easy to miss: under 32bpp the *AND mask* is
+the transparency (Pillow's own CUR reader returns a fully opaque image), and
+XCursor pixels are **premultiplied** ARGB, which matters at the soft edges
+rescaling creates. The role table is `ROLES` near the bottom of the file.
 
 ---
 

@@ -20,6 +20,7 @@ DO_WIRE=1
 DO_LOCK=0
 DO_IDLE=0
 DO_WALLS=0
+DO_CURSORS=1
 
 say()  { printf '\033[32m==>\033[0m %s\n' "$*"; }
 warn() { printf '\033[33m warn\033[0m %s\n' "$*" >&2; }
@@ -33,6 +34,7 @@ Fellowship for Omarchy
 
   --no-bar          skip the tengwar bar module
   --no-wire         install the bar module but do not edit shell.json
+  --no-cursors      skip the WoW cursor theme and its hooks
   --with-lock       install the Moria lock screen (clones omarchy.lock)
   --with-idle       install the quiet screensaver (clones omarchy.idle)
   --with-wallpapers copy the source illustrations to ~/Pictures/Wallpapers/LOTR
@@ -40,14 +42,15 @@ Fellowship for Omarchy
   --all             everything above
   -h, --help        this
 
-Default: both themes, the tengwar bar module, wired either side of the clock,
-then apply "fellowship".
+Default: both themes, the tengwar bar module wired either side of the clock,
+the cursor theme and its hooks, then apply "fellowship".
 EOF
 }
 
 while [[ $# -gt 0 ]]; do
   case $1 in
     --no-bar)          DO_BAR=0; DO_WIRE=0 ;;
+    --no-cursors)      DO_CURSORS=0 ;;
     --no-wire)         DO_WIRE=0 ;;
     --with-lock)       DO_LOCK=1 ;;
     --with-idle)       DO_IDLE=1 ;;
@@ -104,6 +107,30 @@ if (( DO_WIRE )); then
   [[ -f $SHELL_JSON ]] || { mkdir -p "$CONF"; echo '{"version":1}' >"$SHELL_JSON"; }
   backup "$SHELL_JSON"
   python3 "$HERE/bin/wire-bar.py" "$SHELL_JSON" || die "could not edit shell.json (restore the .bak if needed)"
+fi
+
+# ------------------------------------------------------------------ cursors --
+if (( DO_CURSORS )); then
+  say "cursor theme"
+  mkdir -p "$HOME/.local/share/icons"
+  dst="$HOME/.local/share/icons/Fellowship-WoW"
+  if [[ -d $dst ]]; then
+    rm -rf "$dst.bak.$STAMP"; mv "$dst" "$dst.bak.$STAMP"
+    warn "existing Fellowship-WoW moved aside"
+  fi
+  cp -a "$HERE/cursors/Fellowship-WoW" "$dst"
+  echo "    $dst ($(find "$dst/cursors" -maxdepth 1 | tail -n +2 | wc -l) names)"
+
+  # Omarchy has no cursor slot in its theme format, so a hook reads the
+  # cursors.theme file each theme carries and applies it. Installed for
+  # theme-set and post-boot both, so it follows a switch and survives a reboot.
+  mkdir -p "$CONF/bin"
+  install -m755 "$HERE/bin/fellowship-cursor" "$CONF/bin/fellowship-cursor"
+  for ev in theme-set post-boot; do
+    omarchy hook install "$ev" "$CONF/bin/fellowship-cursor" >/dev/null 2>&1 \
+      || warn "could not install the $ev hook; run: omarchy hook install $ev $CONF/bin/fellowship-cursor"
+  done
+  echo "    theme-set + post-boot hooks installed"
 fi
 
 # ------------------------------------------------------- optional plugins --
@@ -173,4 +200,7 @@ Done.
 The bar carries "elen sila" and "omentielvo" either side of the clock, so the
 time stands where lumenn' -- "upon the hour" -- belongs. Click either to read
 it in Latin letters; hover for the whole line.
+
+The pointer is the Warcraft gauntlet. It follows the theme: switch to anything
+without a cursors.theme and the system cursor comes back.
 EOF

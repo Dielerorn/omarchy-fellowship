@@ -1,0 +1,42 @@
+#!/bin/bash
+# Apply the cursor theme the current Omarchy theme asks for.
+#
+# Omarchy has no cursor slot in its theme format -- it sets only XCURSOR_SIZE --
+# so this reads a `cursors.theme` file from the applied theme, in the same
+# spirit as the stock `icons.theme`: one line, the name of an XCursor theme
+# under ~/.local/share/icons or /usr/share/icons.
+#
+# Installed as both a theme-set and a post-boot hook, so the cursor follows a
+# theme switch immediately and survives a reboot without anything having to be
+# written into hyprland.lua.
+#
+# A theme that names no cursor gets the system default back, which is what the
+# session would have used anyway.
+
+set -u
+
+THEME_DIR="$HOME/.local/state/omarchy/current/theme"
+FALLBACK="Adwaita"          # what /usr/share/icons/default inherits
+SIZE="${XCURSOR_SIZE:-24}"
+
+name="$FALLBACK"
+if [[ -f $THEME_DIR/cursors.theme ]]; then
+  want="$(head -n1 "$THEME_DIR/cursors.theme" | tr -d '[:space:]')"
+  if [[ -n $want ]]; then
+    for root in "$HOME/.local/share/icons" "$HOME/.icons" /usr/share/icons; do
+      if [[ -d $root/$want/cursors ]]; then name="$want"; break; fi
+    done
+    if [[ $name != "$want" ]]; then
+      echo "fellowship-cursor: cursor theme '$want' not installed; using $FALLBACK" >&2
+    fi
+  fi
+fi
+
+# The compositor's own pointer, live.
+hyprctl setcursor "$name" "$SIZE" >/dev/null 2>&1 || true
+# Newly launched clients that draw their own cursors.
+hyprctl keyword env XCURSOR_THEME,"$name" >/dev/null 2>&1 || true
+# GTK reads this rather than the environment in some configurations.
+if command -v gsettings >/dev/null 2>&1; then
+  gsettings set org.gnome.desktop.interface cursor-theme "$name" >/dev/null 2>&1 || true
+fi

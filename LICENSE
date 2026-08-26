@@ -31,3 +31,9 @@ the complete original package, unmodified.
 
 The source illustrations under wallpapers/ are included so that the plates can
 be rebuilt from them, and are not covered by the MIT grant above.
+
+The cursors under cursors/ are Blizzard Entertainment's World of Warcraft
+artwork. They are not mine, are not covered by the MIT grant, and are not
+licensed for redistribution. This repository is private for that reason. The
+converter that builds them, forge/cursors.py, is MIT like the rest and works
+with any folder of .ani or .cur files.
