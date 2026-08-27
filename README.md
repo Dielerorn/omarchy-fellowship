@@ -265,6 +265,13 @@ unless you ask.
 ./install.sh --with-idle    # a calm screensaver instead of the random effects
 ```
 
+`--with-idle` covers both ways into the screensaver, which are separate: going
+idle runs it through the cloned idle plugin, while the menu's Screensaver row
+(Super+Space) calls stock `omarchy-launch-screensaver` and picks a random ttfx
+effect. The installer repoints that row in
+`~/.config/omarchy/extensions/omarchy-menu.jsonc` as well, reusing the stock id
+so the icon and label are inherited, and leaving any rows of your own alone.
+
 `--with-lock` is what makes `lockscreen.png` do anything: stock Omarchy blurs
 the desktop wallpaper behind the lock screen, and this replaces it with a
 plate of hewn stone shown sharp. It also stops the lock screen blanking the

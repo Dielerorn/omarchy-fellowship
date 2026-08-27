@@ -184,6 +184,24 @@ running to parchment and back. `--cycles 100000` keeps it continuous; the
 darkest stop is `6b5423` rather than something near-black, because the radial
 travel dims the whole inscription at times and it has to stay legible then.
 
+### The two ways in
+
+Cloning the idle plugin only covers one of them. Going idle runs the
+screensaver through `austin.idle`, but the menu's Screensaver row
+(Super+Space) is a separate path that calls stock
+`omarchy-launch-screensaver` — so the same inscription came up in ttfx's
+random effect, rainbow rather than gold. The row is repointed in
+`~/.config/omarchy/extensions/omarchy-menu.jsonc`, reusing the stock id so the
+icon and label are inherited:
+
+```jsonc
+"system.screensaver": {"action":"$HOME/.config/omarchy/bin/fellowship-launch-screensaver force"},
+```
+
+`force` is upstream's own flag for "start even though the screensaver is
+toggled off", and the Fellowship launcher handles it identically, being a copy.
+Menu actions run through `bash -lc`, so `$HOME` expands.
+
 `~/.config/omarchy/plugins/austin.idle/` is a clone of `omarchy.idle` whose
 only change is calling the launcher above. It picks it by existence rather
 than exit code — both scripts exit non-zero for benign reasons (screensaver

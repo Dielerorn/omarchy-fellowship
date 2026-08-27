@@ -168,6 +168,12 @@ if (( DO_IDLE )); then
   if command -v python3 >/dev/null && [[ -f $HERE/themes/fellowship/forge/screensaver.py ]]; then
     ( cd "$HERE/themes/fellowship/forge" && python3 screensaver.py ) || warn "screensaver text not rebuilt"
   fi
+  # Going idle is only one of the two ways in. The menu's Screensaver row
+  # (Super+Space) calls stock omarchy-launch-screensaver, which picks a random
+  # ttfx effect, so it has to be pointed at the calm one separately.
+  MENU="$CONF/extensions/omarchy-menu.jsonc"
+  backup "$MENU"
+  python3 "$HERE/bin/wire-menu.py" "$MENU" || warn "could not edit $MENU"
 fi
 
 # --------------------------------------------------------------- wallpapers --
