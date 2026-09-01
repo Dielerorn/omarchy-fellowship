@@ -10,7 +10,7 @@ the gold of Rivendell's stonework, the amber of autumn beeches, the mauve of
 the far peaks, the verdigris of the falls.
 
 `fellowship-dawn` is the same theme in daylight — vellum and oak-gall ink,
-taken from the Gandalf poster instead. Both carry the same twelve plates,
+taken from the Gandalf poster instead. Both carry the same twenty-two plates,
 ordered so each opens on a picture that suits it.
 
 ## Colours
@@ -34,8 +34,8 @@ in `hyprland.lua`.
 
 ## Backgrounds
 
-Six scenes, each at 16:9 (3840×2160) and 21:9 (3440×1440), so nothing has to
-be cropped on the fly. Omarchy shows one wallpaper across every monitor and
+Eleven scenes, each at 16:9 (3840×2160) and 21:9 (3440×1440), so nothing has
+to be cropped on the fly. Omarchy shows one wallpaper across every monitor and
 fills each with `PreserveAspectCrop`, so a plate is only pixel-exact on a
 panel of its own aspect: the 16:9 plate is exact on any 16:9 panel (2560×1440,
 1920×1080, 4K), the ultrawide on a 3440×1440. A 16:9 plate shown on a 21:9
@@ -43,26 +43,34 @@ panel keeps the middle 74.4% of its height; on 32:9, the middle 50%.
 
 | plate | source | treatment | inscription |
 |---|---|---|---|
-| Rivendell | `Fellowship.png` | cropped | *sinome maruvan* — here I will abide |
+| Rivendell | `Fellowship.png` | cropped, bias 42 | *sinome maruvan* — here I will abide |
 | Durin's Gate | drawn by `forge/durin.py` | — | futhorc, *speak friend and enter* |
+| Mordor | `Mordor.png` | cropped, bias 8 | *undulávë lumbulë* — drowned deep in shadow |
 | Balrog | `Balrog.png` | margin grown | *auta i lómë* — the night is passing |
+| Wizards | `Wizards.png` | margin grown | *aiya Eärendil elenion ancalima* |
 | Gandalf | `Gandalf.png` | margin grown | *elen síla lúmenn' omentielvo* |
+| Council | `Council.png` | margin grown | *aiya Eldalië ar Atanatári* |
+| Treebeard | `Treebeard.png` | margin grown | *yéni únótimë ve rámar aldaron* |
 | Rohirrim | `Rohirrim.png` | margin grown | *utúlie'n aurë* — day has come |
+| Shire | `Shire.png` | margin grown | *alassë ar sérë* — joy and peace |
 | Tom | `Tom.png` | margin grown | *laurië lantar lassi* — golden fall the leaves |
 
-The four vellum posters are 3:2 and cannot be cropped without taking the
-subject's head off, so `forge/forge.sh` grows their empty left margin instead:
-a noise-free vertical light profile is lifted from 80 real columns of
-parchment, softened along its length, stretched across the new margin,
-re-grained, and the poster cross-faded onto it over 1200px.
+The vellum posters are 3:2 and cannot be cropped without taking the subject's
+head off, so `forge/forge.sh` grows their empty left margin instead: a
+noise-free vertical light profile is lifted from 80 real columns of parchment,
+softened along its length, stretched across the new margin, re-grained, and
+the poster cross-faded onto it over 1200px.
 
 The softening matters. Averaging 80 columns gives a clean profile where the
 margin really is empty parchment, as Gandalf's is; where it carries texture —
 Balrog's smoke — an unsoftened profile stretches into hard horizontal streaks
 across the whole plate.
 
-The Rivendell scene has no printed band and survives losing sky and
-foreground, so it is cropped rather than grown.
+Rivendell and Mordor are full-bleed scenes with no margin to grow, so they are
+cropped, and each carries its own bias for where the crop window sits in the
+slack. Rivendell at 42 keeps the company in frame. Mordor needs 8: the Eye sits
+near the top, and a 21:9 crop throws away 37% of the height, so anything much
+higher loses both it and the peak of Barad-dûr.
 
 ### The bands
 
@@ -236,11 +244,29 @@ works as a fixture. `forge.sh` runs the check before it uses any of this, and
 every tengwar string in the theme now comes through it: the bands, the lock
 emblem, the preview card, the Durin's Gate plate, and the bar.
 
+Two rules in there are worth naming, because both were wrong at first and both
+are invisible until you read the output as Quenya rather than as decoration:
+
+* **Rómen before a vowel, órë otherwise.** Quenya has two letters for /r/ and
+  picks by what follows. The test for "a vowel follows" was `nxt in VOWELS`
+  against a string of vowels — and `"" in "aeiou"` is `True` in Python, so a
+  word-final *r* took rómen when it should take órë. It also has to count a
+  long vowel, which is spelt with an acute and so is not in that string.
+* **Diphthongs ride a glide.** Quenya has exactly six — *ai oi ui* on yanta,
+  *au eu iu* on úrë — and the first vowel's tehta sits on the glide rather
+  than on the consonant before it.
+
 Which variant of a tehta a vowel takes depends on the width of the tengwa
 beneath it. The widths were measured out of `tngan.ttf` rather than guessed:
 they fall into three clean buckets — the doubled-bow tengwar near 0.95em, the
 ordinary ones near 0.62em, the two carriers near 0.30em, with nothing in the
 gaps — and those buckets reproduce every letter of the fixture.
+
+Palatalisation — the *ly*, *ny*, *ry* of *Elenya* or *tielyanna*, written with
+two dots under the tengwa — is **not** implemented. Those spell out as the
+consonant followed by anna instead, which reads as consonantal *y* and is not
+wrong so much as not canonical. The inscriptions were chosen to avoid it; if
+you add one that needs it, that is the gap to close first.
 
 **Runes.** The dwarf-runes are Anglo-Saxon futhorc, which is what Tolkien
 actually used for the dwarves in *The Hobbit* — Thrór's map and the

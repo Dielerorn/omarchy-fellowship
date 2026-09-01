@@ -20,8 +20,8 @@ uses, darkened until they hold their own against parchment.
 | `magenta` | `#7C4B5C` | dawn on the far peaks |
 | `brown` | `#6B4B2F` | Hobbiton oak |
 
-The backgrounds are the same twelve plates — six scenes, each at 16:9 and
-21:9 — ordered so this theme opens on the vellum poster rather than the
+The backgrounds are the same twenty-two plates — eleven scenes, each at 16:9
+and 21:9 — ordered so this theme opens on the vellum poster rather than the
 golden-hour scene, and with Durin's Gate drawn in ink on paper instead of
 mithril on dark.
 

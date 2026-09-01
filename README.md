@@ -84,7 +84,7 @@ themes/fellowship-dawn/   the light theme — the same twelve, reordered
 bar/tengwar.qml           the bar module (generated; see forge/barwidget.py)
 cursors/Fellowship-WoW/   the built XCursor theme
 cursors/src/              the Windows .ani cursors it was built from
-wallpapers/               the five source illustrations, 1536x1024
+wallpapers/               the ten source illustrations, 1536x1024
 plugins/                  optional: the Moria lock screen and the quiet screensaver
 bin/                      the screensaver launchers, the cursor hook, and the
                           shell.json wiring helpers
@@ -98,17 +98,26 @@ bin/                      the screensaver launchers, the cursor hook, and the
 
 ## The wallpapers, and fitting them to a panel
 
-Five source illustrations, all 3:2, plus a sixth plate — Durin's Gate — drawn
-from nothing by `forge/durin.py`.
+Ten source illustrations, all 3:2, plus an eleventh plate — Durin's Gate —
+drawn from nothing by `forge/durin.py`. Twenty-two files per theme.
 
 | plate | inscription | |
 |---|---|---|
 | Rivendell | *sinome maruvan* | here I will abide |
 | Durin's Gate | ᛋᛈᛠᚳ᛫ᚠᚱᛁᛖᚾᛞ᛫ᚪᚾᛞ᛫ᛖᚾᛏᛖᚱ | speak friend and enter (futhorc) |
+| Mordor | *undulávë lumbulë* | drowned deep in shadow |
 | Balrog | *auta i lómë* | the night is passing |
+| Wizards | *aiya Eärendil elenion ancalima* | hail Eärendil, brightest of stars |
 | Gandalf | *elen síla lúmenn' omentielvo* | a star shines upon the hour of our meeting |
+| Council | *aiya Eldalië ar Atanatári* | hail Elves and Fathers of Men |
+| Treebeard | *yéni únótimë ve rámar aldaron* | long years numberless as the wings of trees |
 | Rohirrim | *utúlie'n aurë* | day has come |
+| Shire | *alassë ar sérë* | joy and peace |
 | Tom | *laurië lantar lassi* | golden fall the leaves |
+
+All but one are Tolkien's own Quenya. *alassë ar sérë* is built from attested
+vocabulary rather than quoted, there being no canonical line that suits a
+hobbit-hole.
 
 Omarchy shows **one** wallpaper across every monitor and fills each with
 `PreserveAspectCrop`, so a plate is only ever pixel-exact on panels of its own
@@ -123,12 +132,17 @@ Pick whichever matches the monitor you care about and let the others crop. A
 16:9 plate on a 21:9 panel keeps the middle 74.4% of its height; on a 32:9
 panel, the middle 50%.
 
-Nothing is cropped blind. The four vellum posters cannot lose any height — it
-would take the subject's head off — so instead their own empty left margin is
+Nothing is cropped blind. The vellum posters cannot lose any height — it would
+take the subject's head off — so instead their own empty left margin is
 *grown*: a light profile is lifted from 80 real columns of parchment, softened
 along its length, stretched across the new margin, re-grained, and the poster
-cross-faded onto it over 1200px. The Rivendell scene survives losing sky and
-foreground, so that one is cropped.
+cross-faded onto it over 1200px.
+
+Two plates have no such margin. Rivendell and Mordor are full-bleed scenes, so
+they are cropped instead, each with its own bias for where the crop window
+sits: Rivendell at 42% keeps the company in frame, Mordor at 8% keeps the Eye,
+which is near the top and would otherwise be the first thing a 21:9 crop threw
+away.
 
 Every poster carries a printed tengwar band whose script does not repeat
 cleanly, so it cannot be tiled wider. Each plate gets a fresh band instead,
@@ -297,7 +311,7 @@ cd themes/fellowship/forge
 ```
 
 Needs ImageMagick, Python with Pillow, `ttf-tengwar-annatar`, `noto-fonts`,
-and the five source illustrations in `~/Pictures/Wallpapers/LOTR/` (override
+and the ten source illustrations in `~/Pictures/Wallpapers/LOTR/` (override
 with `SRC_DIR=`, or `./install.sh --with-wallpapers` to put them there).
 
 `omarchy theme set` copies the theme to
@@ -315,9 +329,10 @@ Editing the plates, their inscriptions or their band tone is one table near
 the bottom of `forge.sh`:
 
 ```bash
+# slug : source : treatment : band tone : crop bias : the Quenya
 PLATES=(
-  "rivendell:Fellowship:scene:dark:sinome maruvan"
-  "gandalf:Gandalf:poster:light:elen síla lúmenn omentielvo"
+  "rivendell:Fellowship:scene:dark:42:sinome maruvan"
+  "gandalf:Gandalf:poster:light:-:elen síla lúmenn omentielvo"
   ...
 )
 ```

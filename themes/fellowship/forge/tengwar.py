@@ -102,8 +102,12 @@ def _consonant(word, i):
         return None
     if ch == "r":
         # Romen initially and between vowels; ore when it closes a syllable.
+        # A long vowel still counts as a vowel here -- it is spelt with an
+        # acute rather than a plain letter, so it is not in VOWELS.
         nxt = word[i + 1] if i + 1 < len(word) else ""
-        return ("r" if nxt in VOWELS else "r-"), 1
+        # `nxt` is "" at the end of a word, and "" is a substring of every
+        # string -- so this has to test for a character before testing VOWELS.
+        return ("r" if (nxt and (nxt in VOWELS or nxt in LONG)) else "r-"), 1
     if ch == "h":
         return ("h" if i == 0 else "h-"), 1
     return ch, 1

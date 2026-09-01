@@ -111,7 +111,7 @@ band() {
 # Widen a vellum poster to `w`x`h` by growing its own empty left margin, then
 # lay a fresh inscribed band over the printed one.
 poster_plate() {
-  local out=$1 w=$2 h=$3 src=$4 quenya=$5 tone=$6
+  local out=$1 w=$2 h=$3 src=$4 quenya=$5 tone=$6 _bias=${7:-}
   local pw px feather=1200 bh by
   magick "$src" -filter Lanczos -resize "x${h}" -unsharp 0x0.7+0.35+0.02 "$TMP/g.png"
   # drop the poster's own edge vignette, or it reappears in the middle of the plate
@@ -145,9 +145,12 @@ poster_plate() {
 # The Fellowship scene, cropped to an aspect and upscaled.  It carries no
 # printed band, so it gets an inscribed one of the same proportion for company.
 scene_plate() {
-  local out=$1 w=$2 h=$3 src=$4 quenya=$5 tone=$6 ch off bh by
+  local out=$1 w=$2 h=$3 src=$4 quenya=$5 tone=$6 bias=${7:-42} ch off bh by
   ch=$((1536 * h / w))                     # crop height that gives the target aspect
-  off=$(( (1024 - ch) * 42 / 100 ))        # bias upward: keep the company in frame
+  # Where the crop window sits, as a percentage of the slack. Rivendell wants
+  # 42 to keep the company in frame; Mordor wants a low number, because the Eye
+  # is near the top and a 21:9 crop throws away 37% of the height.
+  off=$(( (1024 - ch) * bias / 100 ))
   (( off < 0 )) && off=0
   magick "$src" -crop "1536x${ch}+0+${off}" +repage \
     -filter Lanczos -resize "${w}x${h}!" -unsharp 0x0.7+0.35+0.02 "$TMP/s.png"
@@ -161,62 +164,73 @@ scene_plate() {
 }
 
 # ------------------------------------------------------------------ plates --
-# slug : source : treatment : band tone : the Quenya cut into its band
+# slug : source : treatment : band tone : crop bias : the Quenya cut into its band
+#
+# `poster` grows the picture's own empty left margin; `scene` crops, and the
+# bias says where the crop window sits in the slack (only `scene` reads it).
+# The Quenya is transcribed by tengwar.py -- see the README for what each says.
 PLATES=(
-  "rivendell:Fellowship:scene:dark:sinome maruvan"
-  "gandalf:Gandalf:poster:light:elen síla lúmenn omentielvo"
-  "balrog:Balrog:poster:dark:auta i lómë"
-  "rohirrim:Rohirrim:poster:light:utúlien aurë"
-  "tom:Tom:poster:light:laurië lantar lassi"
+  "rivendell:Fellowship:scene:dark:42:sinome maruvan"
+  "gandalf:Gandalf:poster:light:-:elen síla lúmenn omentielvo"
+  "balrog:Balrog:poster:dark:-:auta i lómë"
+  "rohirrim:Rohirrim:poster:light:-:utúlien aurë"
+  "tom:Tom:poster:light:-:laurië lantar lassi"
+  "council:Council:poster:light:-:aiya Eldalië ar Atanatári"
+  "shire:Shire:poster:light:-:alassë ar sérë"
+  "treebeard:Treebeard:poster:light:-:yéni únótimë ve rámar aldaron"
+  "wizards:Wizards:poster:light:-:aiya Eärendil elenion ancalima"
+  "mordor:Mordor:scene:dark:8:undulávë lumbulë"
 )
 
 echo "==> backgrounds"
 for spec in "${PLATES[@]}"; do
-  IFS=: read -r slug src kind tone quenya <<<"$spec"
+  IFS=: read -r slug src kind tone bias quenya <<<"$spec"
+  [[ $bias == - ]] && bias=42
   echo "    $slug"
-  "${kind}_plate" "$TMP/$slug-hd.jpg" "$HD_W" "$HD_H" "$SRC/$src.png" "$quenya" "$tone"
-  "${kind}_plate" "$TMP/$slug-uw.jpg" "$UW_W" "$UW_H" "$SRC/$src.png" "$quenya" "$tone"
+  "${kind}_plate" "$TMP/$slug-hd.jpg" "$HD_W" "$HD_H" "$SRC/$src.png" "$quenya" "$tone" "$bias"
+  "${kind}_plate" "$TMP/$slug-uw.jpg" "$UW_W" "$UW_H" "$SRC/$src.png" "$quenya" "$tone" "$bias"
 done
 
 echo "==> Durin's Gate"
-python3 "$HERE/durin.py" "$HD_W" "$HD_H" "$TMP/durin-hd.png"       dark
-python3 "$HERE/durin.py" "$UW_W" "$UW_H" "$TMP/durin-uw.png"       dark
-python3 "$HERE/durin.py" "$HD_W" "$HD_H" "$TMP/durin-hd-light.png" light
-python3 "$HERE/durin.py" "$UW_W" "$UW_H" "$TMP/durin-uw-light.png" light
+python3 "$HERE/durin.py" "$HD_W" "$HD_H" "$TMP/durins-gate-hd.png"       dark
+python3 "$HERE/durin.py" "$UW_W" "$UW_H" "$TMP/durins-gate-uw.png"       dark
+python3 "$HERE/durin.py" "$HD_W" "$HD_H" "$TMP/durins-gate-light-hd.png" light
+python3 "$HERE/durin.py" "$UW_W" "$UW_H" "$TMP/durins-gate-light-uw.png" light
 
 # omarchy takes backgrounds[0] the first time a theme is applied, and `omarchy
 # theme bg next` walks them in sorted order, so the numbering is the running
 # order.  The dark theme opens on the golden-hour scene and keeps the dark
 # plates early; the light one opens on the vellum poster.
-install_set() {
+install_order() {
   local dir=$1; shift
-  local i=1 spec name file
+  local i=1 spec name stem ext
   # Clear the previous set first: the numbers are the running order, and a
-  # renumbered plate left under its old name would be cycled through twice.
+  # renumbered plate left behind under its old name would be cycled through
+  # twice.
   find "$dir" -maxdepth 1 -type f \( -name '*.jpg' -o -name '*.png' \) -delete
   for spec in "$@"; do
-    IFS=: read -r name file <<<"$spec"
-    install -m644 "$TMP/$file" "$dir/$(printf '%02d' "$i")-$name"
+    IFS=: read -r name stem ext <<<"$spec"
+    install -m644 "$TMP/$stem-hd.$ext" "$dir/$(printf '%02d' "$i")-$name.$ext"
+    i=$((i + 1))
+    install -m644 "$TMP/$stem-uw.$ext" "$dir/$(printf '%02d' "$i")-$name-ultrawide.$ext"
     i=$((i + 1))
   done
 }
 
 echo "==> installing"
-install_set "$DARK/backgrounds" \
-  "rivendell.jpg:rivendell-hd.jpg"                "rivendell-ultrawide.jpg:rivendell-uw.jpg" \
-  "durins-gate.png:durin-hd.png"                  "durins-gate-ultrawide.png:durin-uw.png" \
-  "balrog.jpg:balrog-hd.jpg"                      "balrog-ultrawide.jpg:balrog-uw.jpg" \
-  "gandalf.jpg:gandalf-hd.jpg"                    "gandalf-ultrawide.jpg:gandalf-uw.jpg" \
-  "rohirrim.jpg:rohirrim-hd.jpg"                  "rohirrim-ultrawide.jpg:rohirrim-uw.jpg" \
-  "tom.jpg:tom-hd.jpg"                            "tom-ultrawide.jpg:tom-uw.jpg"
+# The dark theme opens on the golden-hour scene and keeps the dark plates
+# early; the light one opens on the vellum poster. Both carry all eleven.
+install_order "$DARK/backgrounds" \
+  "rivendell:rivendell:jpg"   "durins-gate:durins-gate:png"  "mordor:mordor:jpg" \
+  "balrog:balrog:jpg"         "wizards:wizards:jpg"          "gandalf:gandalf:jpg" \
+  "council:council:jpg"       "treebeard:treebeard:jpg"      "rohirrim:rohirrim:jpg" \
+  "shire:shire:jpg"           "tom:tom:jpg"
 
-install_set "$LIGHT/backgrounds" \
-  "gandalf.jpg:gandalf-hd.jpg"                    "gandalf-ultrawide.jpg:gandalf-uw.jpg" \
-  "tom.jpg:tom-hd.jpg"                            "tom-ultrawide.jpg:tom-uw.jpg" \
-  "rohirrim.jpg:rohirrim-hd.jpg"                  "rohirrim-ultrawide.jpg:rohirrim-uw.jpg" \
-  "durins-gate.png:durin-hd-light.png"            "durins-gate-ultrawide.png:durin-uw-light.png" \
-  "rivendell.jpg:rivendell-hd.jpg"                "rivendell-ultrawide.jpg:rivendell-uw.jpg" \
-  "balrog.jpg:balrog-hd.jpg"                      "balrog-ultrawide.jpg:balrog-uw.jpg"
+install_order "$LIGHT/backgrounds" \
+  "gandalf:gandalf:jpg"       "shire:shire:jpg"              "council:council:jpg" \
+  "treebeard:treebeard:jpg"   "tom:tom:jpg"                  "rohirrim:rohirrim:jpg" \
+  "wizards:wizards:jpg"       "durins-gate:durins-gate-light:png" \
+  "rivendell:rivendell:jpg"   "balrog:balrog:jpg"            "mordor:mordor:jpg"
 
 echo "==> lock plates"
 # Hewn stone for the lock screen. The emblem is drawn for a dark ground, and a
